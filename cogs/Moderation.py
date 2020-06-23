@@ -32,8 +32,15 @@ class Moderation(commands.Cog):
             return
 #The clean command
     @commands.command()
-    async def clear(self,ctx,ammount=5):
+    @commands.has_permissions(manage_messages=True)
+    async def clear(self,ctx,ammount : int):
         await ctx.channel.purge(limit=ammount)
+    @clear.error#Error checker for clean command
+    async def oclear_error(self,ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send('Please specifecy ammount of messages to delete')
+        if isinstance(error,commands.MissingPermissions):
+            await ctx.send('Sorry no permission to do that!')
 
     
 def  setup(client):
