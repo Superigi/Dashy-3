@@ -29,10 +29,14 @@ class Fun(commands.Cog):
                     "Outlook not so good.",
                     "Very doubtful."]
         await ctx.send(f'Question: {question}\nAnswer: {random.choice(responces)}')
+    @_8ball.error
+    async def oclear_error(self,ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send('Please specifecy the question')
     #The ping commnad
-    #@commands.command()
-    #async def ping(self,ctx):
-        #await ctx.send('Pong! {round(self.latency*1000)}ms')
+    @commands.command()
+    async def ping(self,ctx):
+        await ctx.send('Pong!')
 
 
 
