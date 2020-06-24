@@ -1,6 +1,7 @@
 from discord.ext.commands import Bot as BotBase
-
+from discord import Embed, File
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import datetime
 
 PREFIX = '+'
 OWNER_IDS =[234472372491517952]
@@ -30,6 +31,24 @@ class Bot(BotBase):
         if not self.ready:
             self.ready = True
             print('bot ready')
+
+            channel = self.get_channel(693244168725856308)
+            await channel.send("Now Online")
+
+            embed = Embed(title='Now Online!', description='Dashy-3 Is now online',
+                          colour=0xFF0000, timestamp=datetime.utcnow())
+            fields=[('Name','Value',True),
+                    ('Another Fireld','Another Value',True),
+                    ('A none inline filed','This fireld will apaer on new row same row',False),]
+            for name,value,inline in fields:
+                embed.add_field(name=name, value=value,inline=inline)
+                embed.set_author(name='Dashy-3')
+
+                embed.set_footer(text='This is a footer!')
+            await channel.send(embed=embed)
+            #await channel.send(file=File('./data/images/bot-icon-2883144_1280.png'))
+
+
         else:
             print('Bot reconnected')
 
