@@ -1,18 +1,59 @@
 import discord
+import json
 import random
 import os
 from discord.ext import commands, tasks
 from itertools import cycle
 
-#Makes the bot command to start with dot(.)
-client = commands.Bot(command_prefix = '.')
+
+#creates a prefix dicoranry for each server 
+def get_prefix(client,message):
+    with open('prefixes.json','r') as f:
+        prefixes = json.load(f)
+
+    return prefixes[str(message.guild.id)]
+
+client = commands.Bot(command_prefix = get_prefix)
 status = cycle(['https://quicc.page.link/Dashy-3','mc.superfiremc.net'])
+
+#on join gets server id and makes the defualt prefix as (.)
+@client.event
+async def on_guild_join(guild):
+    with open('prefixes.json','r') as f:
+        prefixes = json.load(f)
+        prefixes[str(guild.id)] = '.'
+
+    with open ('prefixes.json','w') as f:
+        json.dump(prefixes, f, indent=4)
+#on leave removes the id of the server
+@client.event
+async def on_guild_remove(guild):
+    with open('prefixes.json','r') as f:
+        prefixes = json.load(f)
+
+        prefixes.pop(str(guild.id))
+    with open ('prefixes.json','w') as f:
+        json.dump(prefixes, f, indent=4)
+
+
+#remotly changes the prefix and saves it under the server id
+@client.command(aliases=['cp'])
+async def changeprefix(ctx,prefix):
+    with open('prefixes.json','r') as f:
+        prefixes = json.load(f)
+
+        prefixes[str(ctx.guild.id)] = prefix
+
+    with open ('prefixes.json','w') as f:
+        json.dump(prefixes, f, indent=4)
+    await ctx.send(f'Prefix changed to: {prefix}')
+
 
 #Starting events
 @client.event
 async def on_ready():
     change_status.start()
-    print("Bot Online")
+    print("Bot Online")    
 
 #loop for the Playing status
 @tasks.loop(seconds=10)
@@ -27,7 +68,7 @@ async def on_command_error(ctx,error):
 
 #stores user id
 def is_it_me(ctx):
-    return ctx.author.id == 00000000000000 #0000000000 = place holder
+    return ctx.author.id ==  00000000000 #0000000000 = place holder
 
 
 
