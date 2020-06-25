@@ -2,6 +2,7 @@ from discord.ext.commands import Bot as BotBase
 from discord import Embed, File
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
+from discord.exc.commands import CommandNotFound
 
 PREFIX = '+'
 OWNER_IDS =[234472372491517952]
@@ -26,6 +27,21 @@ class Bot(BotBase):
 
     async def on_disconect(self):
         print('Bot Has Disconnected')
+
+    async def on_error(self,err, *args, **kwargs):
+        if err == "on_command_error":
+            await args[0].send("Something is Wrong.")
+
+        raise
+
+    async def on_command_error(self,ctx, exc):
+        if isinstance(exc, CommandNotFound):
+            pass
+        elif hasattr(exc, "original"):
+            raise exc.original
+        else:
+            raise exc
+
 
     async def on_ready(self):
         if not self.ready:
