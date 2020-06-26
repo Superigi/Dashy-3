@@ -23,8 +23,12 @@ class Bot(BotBase):
 
     def run(self, version):
         self.VERSION = version
-        with open('./lib/bot/token.0','r',encoding='utf=8')as tf:
-            self.TOKEN = tf.read()
+        try:
+            with open('./lib/bot/token.0','r',encoding='utf=8')as tf:
+                self.TOKEN = tf.read()
+        except:
+            print("There was an error trying to load the token in ./lib/bot/token.0\nThe program will now exit")
+            exit(1)
         print('Running bot ...')
         super().run(self.TOKEN, reconnect=True)
 
