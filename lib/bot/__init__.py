@@ -8,11 +8,17 @@ from discord.ext.commands import Context
 from discord.ext.commands import CommandNotFound
 from ..db import db
 from asyncio import sleep
+from discord.ext.commands.errors import (BadArgument , Forbidden, MissingRequiredArgument)
+from discord.errors import HTTPException
 
 
 PREFIX = '+'
 OWNER_IDS =[234472372491517952]
 COGS = [path.split('\\')[-1][:-3] for path in glob('./lib/cogs/*.py')]
+IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument)
+
+
+
 class Ready(object):
     def __init__(self):
         for cog in COGS:
@@ -81,8 +87,15 @@ class Bot(BotBase):
         raise
 
     async def on_command_error(self,ctx, exc):
-        if isinstance(exc, CommandNotFound):
+        if any ([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
             pass
+        elif isinstance (exc.original, HTTPException):
+            await ctx.send('Unablie to send message')
+        elif isinstance(exc.original, Forbidden):
+            await ctx.send('No permisssion to do that.')
+        elif isinstance (exc, MissingRequiredArgument):
+            await ctx.semd('One or more Required Arguments Missing')
+    
         elif hasattr(exc, "original"):
             raise exc.original
         else:
