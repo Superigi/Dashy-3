@@ -4,6 +4,7 @@ from discord import Embed, File
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from datetime import datetime
+from discord.ext.commands import Context
 from discord.ext.commands import CommandNotFound
 from ..db import db
 from asyncio import sleep
@@ -51,8 +52,19 @@ class Bot(BotBase):
         print('Running bot ...')
         super().run(self.TOKEN, reconnect=True)
     
+    
+    async def process_commands(self, message):
+        ctx = await self.get_context(message)
+
+        if ctx.command is not None and ctx.guild is not None:
+            if self.ready:
+                    await self.invoke(ctx)
+
+        else:
+            await ctx.send("I'm not ready for commands yet please hold!")
+    
     async def rules_reminder(self):
-        await self.stdout.send('Remeber to add rules here')
+        await self.log.send('Remeber to add rules here')
 
 
 
@@ -79,7 +91,7 @@ class Bot(BotBase):
 
     async def on_ready(self):
         if not self.ready:
-            self.stdout = self.get_channel(693244168725856308)
+            self.log = self.get_channel(693244168725856308)
             self.scheduler.add_job(self.rules_reminder, CronTrigger(day_of_week='0', hour='12',minute='0',second='0'))
             self.scheduler.start()
             
@@ -99,14 +111,15 @@ class Bot(BotBase):
             while not self.cogs_ready.all_ready():
                 await sleep(0.5)
 
-            await self.stdout.send("Now Online")
+            await self.log.send("Now Online")
             self.ready = True
             print('bot ready')
         else:
             print('Bot reconnected')
 
     async def on_message(self, message):
-        pass
+        if not message.author.bot:
+           await self.process_commands(message) 
 
 
 bot = Bot()
